@@ -13,4 +13,7 @@ func SetupRoutes(app *fiber.App) {
 
 	// Root route
 	v1.Get("/", handler.GetRoot)
+
+	// Token Used route
+	v1.Post("/token_used", handler.RecordTokenUsed)
 }

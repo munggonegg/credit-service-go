@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	MongoURL      string
-	MongoDBName   string
-	PortkeyAPIKey string
-	PortkeyURL    string
+	MongoURL             string
+	MongoDBName          string
+	PortkeyAPIKey        string
+	PortkeyURL           string
+	PortkeyWorkspaceSlug string
+	XAPIKey              string
 }
 
 var AppConfig Config
@@ -31,18 +33,24 @@ const (
 	B2BScheduleColl       = "b2b_package_schedule"
 	TopupPackageEventColl = "topup_package_event"
 	SubsPackageEventColl  = "subscription_package_event"
+
+	// Thresholds
+	ThbPerUsd = 35.0
 )
 
+// LoadConfig loads environment variables
 func LoadConfig() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")
 	}
 
 	AppConfig = Config{
-		MongoURL:      os.Getenv("MONGO_URL"),
-		MongoDBName:   os.Getenv("MONGO_DB_NAME"),
-		PortkeyAPIKey: os.Getenv("PORTKEY_API_KEY"),
-		PortkeyURL:    os.Getenv("PORTKEY_URL"),
+		MongoURL:             os.Getenv("MONGO_URL"),
+		MongoDBName:          os.Getenv("MONGO_DB_NAME"),
+		PortkeyAPIKey:        os.Getenv("PORTKEY_API_KEY"),
+		PortkeyURL:           os.Getenv("PORTKEY_URL"),
+		PortkeyWorkspaceSlug: os.Getenv("PORTKEY_WORKSPACE_SLUG"),
+		XAPIKey:              os.Getenv("X_API_KEY"),
 	}
 
 	if AppConfig.MongoURL == "" || AppConfig.MongoDBName == "" {

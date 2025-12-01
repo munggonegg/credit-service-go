@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"munggonegg/credit-service-go/pkg/config"
+	"munggonegg/credit-service-go/pkg/database"
 	"munggonegg/credit-service-go/pkg/router"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,7 +12,13 @@ import (
 )
 
 func main() {
+	// Load config
+	config.LoadConfig()
 
+	// Connect to Database
+	database.Connect()
+
+	// Initialize Fiber app
 	app := fiber.New()
 
 	// Middleware

@@ -27,7 +27,6 @@ const (
 	MainDeductionThreshold = 100
 )
 
-// RollupBalances calculates the balances based on events
 func RollupBalances(events []bson.M) (int, int, int) {
 	main := 0
 	topup := 0
@@ -96,12 +95,11 @@ func RollupBalances(events []bson.M) (int, int, int) {
 	return main, topup, main + topup
 }
 
-// RecomputeAndUpsertUserBalance recalculates and updates the user's balance
 func RecomputeAndUpsertUserBalance(ctx context.Context, userID string) (*model.UserBalance, error) {
 	uueColl := database.GetCollection(config.UsageEventColl)
 	umpColl := database.GetCollection(config.UserMainPackageColl)
 	utpColl := database.GetCollection(config.UserTopupPackageColl)
-	pkgColl := database.GetCollection(config.PackageMasterV3Coll) // Assuming V3 as per Python code
+	pkgColl := database.GetCollection(config.PackageMasterV3Coll)
 	balColl := database.GetCollection(config.UserBalanceColl)
 
 	// Fetch events
@@ -170,10 +168,9 @@ func RecomputeAndUpsertUserBalance(ctx context.Context, userID string) (*model.U
 	return &updatedDoc, nil
 }
 
-// RecomputeTotalTopupToken computes total topup tokens
 func RecomputeTotalTopupToken(ctx context.Context, userID string) (int, error) {
 	tpeColl := database.GetCollection(config.TopupPackageEventColl)
-	pkgCollName := config.PackageMasterV3Coll // Using V3
+	pkgCollName := config.PackageMasterV3Coll
 
 	pipeline := mongo.Pipeline{
 		{{Key: "$match", Value: bson.M{"userId": userID, "status": "A"}}},

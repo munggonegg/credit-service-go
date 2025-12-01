@@ -34,11 +34,9 @@ const (
 	TopupPackageEventColl = "topup_package_event"
 	SubsPackageEventColl  = "subscription_package_event"
 
-	// Thresholds
 	ThbPerUsd = 35.0
 )
 
-// LoadConfig loads environment variables
 func LoadConfig() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")

@@ -18,7 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// RecordTokenUsed handles the token usage recording
 func RecordTokenUsed(c *fiber.Ctx) error {
 	var payload model.TokenUsedIn
 	if err := c.BodyParser(&payload); err != nil {
@@ -119,7 +118,7 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 
 	eggThbPrice := toFloat(pkg["conversionRatio"])
 	if eggThbPrice == 0 {
-		eggThbPrice = 1 // Avoid division by zero, though should not happen
+		eggThbPrice = 1
 	}
 
 	chatCost := totalCents / 100.0
@@ -129,11 +128,6 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 	}
 
 	totalCost := chatCost + websearchCost
-
-	// Quantize USD (simulated with rounding to 6 decimal places if needed, but float64 is used here)
-	// Python: quantize(USD_SCALE, rounding=ROUND_HALF_UP)
-	// We'll just use the float values directly for now as per "optimize" instruction,
-	// unless strict financial rounding is critical.
 
 	thb := totalCost * config.ThbPerUsd
 	eggTokenFloat := thb / eggThbPrice
@@ -181,7 +175,6 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 	}
 
 	// Insert and Recompute
-	// We can do this concurrently or sequentially. Sequentially is safer for consistency.
 	_, err = uueColl.InsertOne(ctx, doc)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"detail": fmt.Sprintf("DB insert failed: %v", err)})
@@ -189,8 +182,6 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 
 	_, err = service.RecomputeAndUpsertUserBalance(ctx, payload.UserID)
 	if err != nil {
-		// Log error but return success as event is recorded? Or fail?
-		// Python returns 500.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"detail": fmt.Sprintf("DB update failed: %v", err)})
 	}
 
@@ -211,9 +202,7 @@ func toInt(v interface{}) int {
 	case string:
 		i, _ := strconv.Atoi(val)
 		return i
-	case primitive.Decimal128: // Handle Decimal128 from Mongo
-		// This is tricky without big.Int, but for tokens (int) we assume it fits
-		// Or parse string representation
+	case primitive.Decimal128:
 		f, _ := strconv.ParseFloat(val.String(), 64)
 		return int(f)
 	default:

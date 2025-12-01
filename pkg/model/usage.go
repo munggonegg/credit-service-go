@@ -6,7 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// UsageEventOut represents the output for a usage event
 type UsageEventOut struct {
 	EventTimeStamp   time.Time             `json:"eventTimeStamp" bson:"eventTimeStamp"`
 	UserID           string                `json:"userId" bson:"userId"`
@@ -24,7 +23,6 @@ type UsageEventOut struct {
 	AgentID          *string               `json:"agentId,omitempty" bson:"agentId,omitempty"`
 }
 
-// TokenUsedIn represents the input for recording token usage
 type TokenUsedIn struct {
 	UserID        string   `json:"userId"`
 	TraceID       string   `json:"traceId"`
@@ -32,7 +30,6 @@ type TokenUsedIn struct {
 	WebsearchCost *float64 `json:"websearchCost,omitempty"`
 }
 
-// UserBalance represents the user balance document
 type UserBalance struct {
 	UserID                string    `bson:"userId"`
 	TotalToken            int       `bson:"totalToken"`
@@ -43,7 +40,6 @@ type UserBalance struct {
 	CreatedAt             time.Time `bson:"createdAt"`
 }
 
-// UserMainPackage represents the user's main package
 type UserMainPackage struct {
 	UserID         string    `bson:"userId"`
 	SubscriptionID string    `bson:"subscriptionId"`
@@ -55,7 +51,6 @@ type UserMainPackage struct {
 	UpdatedAt      time.Time `bson:"updatedAt"`
 }
 
-// UserTopupPackage represents the user's topup package
 type UserTopupPackage struct {
 	UserID          string    `bson:"userId"`
 	Status          string    `bson:"status"`
@@ -66,9 +61,8 @@ type UserTopupPackage struct {
 	UpdatedAt       time.Time `bson:"updatedAt"`
 }
 
-// PackageMaster represents the package master document
 type PackageMaster struct {
 	PackageID       string      `bson:"packageId"`
 	EggToken        int         `bson:"eggToken"`
-	ConversionRatio interface{} `bson:"conversionRatio"` // Can be string or number in Mongo
+	ConversionRatio interface{} `bson:"conversionRatio"`
 }

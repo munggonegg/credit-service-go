@@ -12,13 +12,10 @@ import (
 )
 
 func main() {
-	// Load config
-	config.LoadConfig()
 
-	// Connect to Database
+	config.LoadConfig()
 	database.Connect()
 
-	// Initialize Fiber app
 	app := fiber.New()
 
 	// Middleware

@@ -12,7 +12,7 @@ func SetupRoutes(app *fiber.App) {
 	v1 := api.Group("/v1")
 
 	// Root route
-	v1.Get("/", handler.GetRoot)
+	app.Get("/", handler.GetRoot)
 
 	// Token Used route
 	v1.Post("/token_used", handler.RecordTokenUsed)

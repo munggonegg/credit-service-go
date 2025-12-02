@@ -1,11 +1,11 @@
-package database
+package mongodb
 
 import (
 	"context"
 	"log"
 	"time"
 
-	"munggonegg/credit-service-go/pkg/config"
+	"munggonegg/credit-service-go/internal/config"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

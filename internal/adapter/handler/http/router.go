@@ -1,7 +1,7 @@
-package router
+package http
 
 import (
-	"munggonegg/credit-service-go/pkg/handler"
+
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,8 +12,8 @@ func SetupRoutes(app *fiber.App) {
 	v1 := api.Group("/v1")
 
 	// Root route
-	app.Get("/", handler.GetRoot)
+	app.Get("/", GetRoot)
 
 	// Token Used route
-	v1.Post("/token_used", handler.RecordTokenUsed)
+	v1.Post("/token_used", RecordTokenUsed)
 }

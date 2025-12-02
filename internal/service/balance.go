@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"munggonegg/credit-service-go/pkg/config"
-	"munggonegg/credit-service-go/pkg/database"
-	"munggonegg/credit-service-go/pkg/model"
+	"munggonegg/credit-service-go/internal/config"
+	"munggonegg/credit-service-go/internal/adapter/repository/mongodb"
+	"munggonegg/credit-service-go/internal/core/domain"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -95,12 +95,12 @@ func RollupBalances(events []bson.M) (int, int, int) {
 	return main, topup, main + topup
 }
 
-func RecomputeAndUpsertUserBalance(ctx context.Context, userID string) (*model.UserBalance, error) {
-	uueColl := database.GetCollection(config.UsageEventColl)
-	umpColl := database.GetCollection(config.UserMainPackageColl)
-	utpColl := database.GetCollection(config.UserTopupPackageColl)
-	pkgColl := database.GetCollection(config.PackageMasterV3Coll)
-	balColl := database.GetCollection(config.UserBalanceColl)
+func RecomputeAndUpsertUserBalance(ctx context.Context, userID string) (*domain.UserBalance, error) {
+	uueColl := mongodb.GetCollection(config.UsageEventColl)
+	umpColl := mongodb.GetCollection(config.UserMainPackageColl)
+	utpColl := mongodb.GetCollection(config.UserTopupPackageColl)
+	pkgColl := mongodb.GetCollection(config.PackageMasterV3Coll)
+	balColl := mongodb.GetCollection(config.UserBalanceColl)
 
 	// Fetch events
 	cursor, err := uueColl.Find(ctx, bson.M{"userId": userID}, options.Find().SetSort(bson.M{"eventTimeStamp": 1}))
@@ -159,7 +159,7 @@ func RecomputeAndUpsertUserBalance(ctx context.Context, userID string) (*model.U
 	}
 
 	opts := options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After)
-	var updatedDoc model.UserBalance
+	var updatedDoc domain.UserBalance
 	err = balColl.FindOneAndUpdate(ctx, bson.M{"userId": userID}, update, opts).Decode(&updatedDoc)
 	if err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ func RecomputeAndUpsertUserBalance(ctx context.Context, userID string) (*model.U
 }
 
 func RecomputeTotalTopupToken(ctx context.Context, userID string) (int, error) {
-	tpeColl := database.GetCollection(config.TopupPackageEventColl)
+	tpeColl := mongodb.GetCollection(config.TopupPackageEventColl)
 	pkgCollName := config.PackageMasterV3Coll
 
 	pipeline := mongo.Pipeline{

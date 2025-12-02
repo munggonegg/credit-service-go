@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"munggonegg/credit-service-go/pkg/config"
-	"munggonegg/credit-service-go/pkg/database"
-	"munggonegg/credit-service-go/pkg/router"
+	"munggonegg/credit-service-go/internal/config"
+	"munggonegg/credit-service-go/internal/adapter/repository/mongodb"
+	"munggonegg/credit-service-go/internal/adapter/handler/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -14,7 +14,7 @@ import (
 func main() {
 
 	config.LoadConfig()
-	database.Connect()
+	mongodb.Connect()
 
 	app := fiber.New()
 
@@ -23,7 +23,7 @@ func main() {
 	app.Use(logger.New())
 
 	// Setup Routes
-	router.SetupRoutes(app)
+	http.SetupRoutes(app)
 
 	// Start server
 	log.Fatal(app.Listen(":3000"))

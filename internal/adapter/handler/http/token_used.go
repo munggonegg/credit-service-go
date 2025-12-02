@@ -1,4 +1,4 @@
-package handler
+package http
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"munggonegg/credit-service-go/pkg/config"
-	"munggonegg/credit-service-go/pkg/database"
-	"munggonegg/credit-service-go/pkg/model"
-	"munggonegg/credit-service-go/pkg/service"
+	"munggonegg/credit-service-go/internal/config"
+	"munggonegg/credit-service-go/internal/adapter/repository/mongodb"
+	"munggonegg/credit-service-go/internal/core/domain"
+	"munggonegg/credit-service-go/internal/service"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,20 +20,20 @@ import (
 )
 
 func RecordTokenUsed(c *fiber.Ctx) error {
-	var payload model.TokenUsedIn
+	var payload domain.TokenUsedIn
 	if err := c.BodyParser(&payload); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
 	ctx := c.Context()
-	umpColl := database.GetCollection(config.UserMainPackageColl)
-	balColl := database.GetCollection(config.UserBalanceColl)
-	pkgColl := database.GetCollection(config.PackageMasterV3Coll)
-	uueColl := database.GetCollection(config.UsageEventColl)
+	umpColl := mongodb.GetCollection(config.UserMainPackageColl)
+	balColl := mongodb.GetCollection(config.UserBalanceColl)
+	pkgColl := mongodb.GetCollection(config.PackageMasterV3Coll)
+	uueColl := mongodb.GetCollection(config.UsageEventColl)
 
 	// 1. Parallel Fetching: UserMainPackage and UserBalance
-	var ump model.UserMainPackage
-	var bal model.UserBalance
+	var ump domain.UserMainPackage
+	var bal domain.UserBalance
 
 	g, gCtx := errgroup.WithContext(ctx)
 
@@ -129,7 +129,7 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 	}
 
 	// 3. Fetch Package Master (for conversion ratio)
-	var pkg model.PackageMaster
+	var pkg domain.PackageMaster
 	if err := pkgColl.FindOne(ctx, bson.M{"packageId": ump.PackageID}).Decode(&pkg); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"detail": "Package not found"})
 	}
@@ -226,7 +226,7 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 	chatCostDec, _ := primitive.ParseDecimal128(fmt.Sprintf("%.6f", chatCost))
 	websearchCostDec, _ := primitive.ParseDecimal128(fmt.Sprintf("%.6f", websearchCost))
 
-	doc := model.UsageEventOut{
+	doc := domain.UsageEventOut{
 		EventTimeStamp:   time.Now(),
 		UserID:           payload.UserID,
 		EventType:        "Token Used",

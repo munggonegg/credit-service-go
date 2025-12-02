@@ -244,12 +244,16 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 	}
 
 	// Fire and forget
-	go func(event model.UsageEventOut) {
-		// Create a new context for the background task
-		bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		uueColl.InsertOne(bgCtx, event)
-	}(doc)
+	// Synchronous Create Usage Event with Timeout
+	// We use a detached context (context.Background) with a timeout to ensure the insert attempts to complete
+	// even if the client disconnects, as the balance has already been deducted.
+	bgCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if _, err := uueColl.InsertOne(bgCtx, doc); err != nil {
+		// Log error but do not fail the request since deduction succeeded
+		fmt.Printf("Failed to insert usage event: %v\n", err)
+	}
 
 	return c.Status(fiber.StatusCreated).JSON(doc)
 }

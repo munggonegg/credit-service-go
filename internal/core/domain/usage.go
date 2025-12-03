@@ -30,6 +30,13 @@ type TokenUsedIn struct {
 	WebsearchCost *float64 `json:"websearchCost,omitempty"`
 }
 
+type TokenUsedResponse struct {
+	TraceID           string `json:"traceId"`
+	TotalCostUsd      string `json:"totalCostUsd"`
+	TotalToken        int    `json:"totalToken"`
+	TransactionStatus string `json:"transactionStatus"`
+}
+
 type UserBalance struct {
 	UserID                string    `bson:"userId"`
 	TotalToken            int       `bson:"totalToken"`

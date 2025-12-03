@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"munggonegg/credit-service-go/internal/config"
 	"munggonegg/credit-service-go/internal/adapter/repository/mongodb"
+	"munggonegg/credit-service-go/internal/config"
 	"munggonegg/credit-service-go/internal/core/domain"
 	"munggonegg/credit-service-go/internal/service"
 
@@ -173,7 +173,7 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 	// Logic from service.RollupBalances:
 	// if main >= MainDeductionThreshold (100) -> deduct from main first
 	// else -> deduct from topup first
-	
+
 	deduction := int(math.Abs(float64(eggTokenInt)))
 	mainDeduction := 0
 	topupDeduction := 0
@@ -255,5 +255,13 @@ func RecordTokenUsed(c *fiber.Ctx) error {
 		fmt.Printf("Failed to insert usage event: %v\n", err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(doc)
+	// 7. Return simplified response
+	response := domain.TokenUsedResponse{
+		TraceID:           payload.TraceID,
+		TotalCostUsd:      fmt.Sprintf("%.6f", totalCost),
+		TotalToken:        eggTokenInt,
+		TransactionStatus: "Success",
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(response)
 }
